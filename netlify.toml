@@ -1,0 +1,10 @@
+# Frontend เท่านั้น — /api ต้องชี้ไป Backend จริง (ตั้งในหน้า Login)
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/missing-api"
+  status = 404
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

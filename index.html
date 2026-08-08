@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+  <meta name="theme-color" content="#0b0d14" />
+  <meta name="description" content="AI Creator Studio — สร้างคอนเทนต์สินค้าด้วย AI" />
+  <title>AI Creator Studio</title>
+  <link rel="manifest" href="assets/manifest.json" />
+  <link rel="icon" href="assets/icon-192.png" />
+  <link rel="apple-touch-icon" href="assets/icon-192.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- AUTH -->
+    <section id="auth-view" class="view">
+      <div class="auth-bg"></div>
+      <div class="auth-panel">
+        <div class="auth-brand">
+          <div class="brand-mark"><i class="fas fa-sparkles"></i></div>
+          <h1>AI Creator Studio</h1>
+          <p>สร้างคอนเทนต์สินค้าด้วย AI แบบครบวงจร</p>
+        </div>
+        <div id="backend-bar" class="backend-bar">
+          <span class="dot"></span>
+          <span class="txt">กำลังเชื่อมต่อ...</span>
+          <button type="button" id="btn-retry-health" class="link-btn">ลองใหม่</button>
+        </div>
+        <div id="api-base-box" class="api-base-box">
+          <label style="font-size:.8rem;color:var(--muted)">URL Backend (เมื่อโฮสต์แยกจาก Frontend)</label>
+          <div style="display:flex;gap:8px;margin-top:6px">
+            <input type="text" id="api-base-input" placeholder="https://your-backend.railway.app" style="flex:1;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg2);color:var(--text)" />
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-save-api-base">บันทึก</button>
+          </div>
+          <p style="font-size:.75rem;color:var(--muted);margin-top:6px">Netlify รันแค่หน้าเว็บ — ต้องชี้ไปยังเซิร์ฟเวอร์ Node ที่รัน API</p>
+        </div>
+
+        <div id="view-login" class="auth-form-wrap">
+          <form id="form-login">
+            <label>ชื่อผู้ใช้ / อีเมล</label>
+            <input id="login-user" type="text" autocomplete="username" required />
+            <label>รหัสผ่าน</label>
+            <input id="login-pass" type="password" autocomplete="current-password" required />
+            <button type="submit" class="btn btn-primary btn-block" id="btn-login">เข้าสู่ระบบ</button>
+          </form>
+          <div class="auth-footer">
+            <a href="#register" id="go-register">สมัครสมาชิก</a>
+            <button type="button" class="icon-btn" id="go-admin-gate" title="Admin"><i class="fas fa-shield-halved"></i></button>
+          </div>
+          <div id="login-err" class="err-box hidden"></div>
+        </div>
+
+        <div id="view-register" class="auth-form-wrap hidden">
+          <form id="form-register">
+            <label>ชื่อผู้ใช้</label>
+            <input id="reg-user" required minlength="3" />
+            <label>อีเมล</label>
+            <input id="reg-email" type="email" required />
+            <label>รหัสผ่าน</label>
+            <input id="reg-pass" type="password" required minlength="6" />
+            <label>ยืนยันรหัสผ่าน</label>
+            <input id="reg-pass2" type="password" required />
+            <button type="submit" class="btn btn-primary btn-block">สมัครสมาชิก</button>
+          </form>
+          <div class="auth-footer"><a href="#login" id="go-login">มีบัญชีแล้ว? เข้าสู่ระบบ</a></div>
+          <div id="reg-err" class="err-box hidden"></div>
+        </div>
+
+        <div id="view-admin-gate" class="auth-form-wrap hidden">
+          <h2 class="auth-sub">ประตู Admin (ขั้น 1)</h2>
+          <form id="form-admin-gate">
+            <label>รหัสประตูความปลอดภัย</label>
+            <input id="admin-sec" type="password" required />
+            <button type="submit" class="btn btn-primary btn-block">Continue</button>
+          </form>
+          <div class="auth-footer"><a href="#login">กลับ Login</a></div>
+          <div id="gate-err" class="err-box hidden"></div>
+        </div>
+
+        <div id="view-admin-login" class="auth-form-wrap hidden">
+          <h2 class="auth-sub">Login Owner / Admin</h2>
+          <form id="form-admin-login">
+            <label>ชื่อผู้ใช้</label>
+            <input id="admin-user" required />
+            <label>รหัสผ่าน</label>
+            <input id="admin-pass" type="password" required />
+            <button type="submit" class="btn btn-primary btn-block">เข้าสู่ระบบ Admin</button>
+          </form>
+          <div class="auth-footer"><a href="#login">กลับ Login ปกติ</a></div>
+          <div id="admin-err" class="err-box hidden"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MAIN -->
+    <section id="main-view" class="view hidden">
+      <aside id="sidebar" class="sidebar">
+        <div class="sb-head">
+          <div class="brand-mark sm"><i class="fas fa-sparkles"></i></div>
+          <span>AI Creator Studio</span>
+        </div>
+        <nav class="sb-nav" id="sb-nav">
+          <a data-route="dashboard" class="nav-link active"><i class="fas fa-house"></i><span>หน้าแรก</span></a>
+          <a data-route="create" class="nav-link"><i class="fas fa-plus"></i><span>สร้าง Content</span></a>
+          <a data-route="analyze" class="nav-link"><i class="fas fa-magnifying-glass"></i><span>วิเคราะห์สินค้า</span></a>
+          <a data-route="projects" class="nav-link"><i class="fas fa-folder"></i><span>โปรเจกต์</span></a>
+          <a data-route="products" class="nav-link"><i class="fas fa-box"></i><span>สินค้า</span></a>
+          <a data-route="characters" class="nav-link"><i class="fas fa-user-astronaut"></i><span>ตัวละคร / นางแบบ</span></a>
+          <a data-route="ai-studio" class="nav-link"><i class="fas fa-robot"></i><span>AI Studio</span></a>
+          <a data-route="videos" class="nav-link"><i class="fas fa-clapperboard"></i><span>วิดีโอ</span></a>
+          <a data-route="media" class="nav-link"><i class="fas fa-images"></i><span>สื่อของฉัน</span></a>
+          <a data-route="templates" class="nav-link"><i class="fas fa-layer-group"></i><span>เทมเพลต</span></a>
+          <a data-route="jobs" class="nav-link"><i class="fas fa-list-check"></i><span>งาน</span></a>
+          <a data-route="downloads" class="nav-link"><i class="fas fa-download"></i><span>ดาวน์โหลด</span></a>
+          <div class="nav-sep"></div>
+          <a data-route="settings" class="nav-link"><i class="fas fa-gear"></i><span>ตั้งค่า</span></a>
+          <a data-route="admin" class="nav-link admin-only hidden"><i class="fas fa-shield-halved"></i><span>ผู้ดูแลระบบ</span></a>
+        </nav>
+        <div class="sb-foot">
+          <div class="user-row">
+            <div class="avatar" id="sb-avatar">U</div>
+            <div>
+              <div class="uname" id="sb-uname">User</div>
+              <div class="urole" id="sb-urole">member</div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-ghost btn-block" id="btn-logout"><i class="fas fa-right-from-bracket"></i> ออกจากระบบ</button>
+        </div>
+      </aside>
+
+      <div class="workspace">
+        <header class="topbar">
+          <button type="button" class="icon-btn only-mobile" id="btn-menu"><i class="fas fa-bars"></i></button>
+          <div class="top-title" id="top-title">หน้าแรก</div>
+          <div class="top-actions">
+            <button type="button" class="btn btn-sm btn-secondary" id="btn-layout-toggle" title="สลับโหมดแสดงผล">
+              <i class="fas fa-mobile-screen" id="layout-icon"></i>
+              <span id="layout-label">มือถือ</span>
+            </button>
+            <button type="button" class="btn btn-sm btn-secondary" id="btn-install-pwa" title="ติดตั้งลงเครื่อง">
+              <i class="fas fa-download"></i> <span class="hide-sm">ติดตั้งแอป</span>
+            </button>
+            <span class="chip" id="quota-chip">—</span>
+            <span class="chip" id="provider-chip">AI</span>
+          </div>
+        </header>
+        <main id="page" class="page"></main>
+      </div>
+
+      <!-- Mobile bottom nav -->
+      <nav class="bottom-nav only-mobile" id="bottom-nav">
+        <a data-route="dashboard" class="bn-item active"><i class="fas fa-house"></i><span>หน้าแรก</span></a>
+        <a data-route="analyze" class="bn-item"><i class="fas fa-magnifying-glass"></i><span>วิเคราะห์</span></a>
+        <a data-route="create" class="bn-item bn-fab"><i class="fas fa-plus"></i></a>
+        <a data-route="projects" class="bn-item"><i class="fas fa-folder"></i><span>โปรเจกต์</span></a>
+        <a data-route="ai-studio" class="bn-item"><i class="fas fa-comments"></i><span>Chat</span></a>
+      </nav>
+    </section>
+  </div>
+
+  <div id="toasts"></div>
+  <div id="modal-root"></div>
+
+  <script type="module" src="js/app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('assets/service-worker.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>

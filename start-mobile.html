@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0d14" />
+  <title>AI Creator Studio</title>
+  <link rel="manifest" href="assets/manifest.json" />
+  <style>
+    :root { --bg:#0b0d14; --card:#161a27; --border:#2a3042; --text:#eef0f6; --muted:#8b93a7; --p:#6c5ce7; --ok:#22c55e; --bad:#ef4444; --warn:#f59e0b; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, 'Noto Sans Thai', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px 16px; }
+    .logo { width: 72px; height: 72px; border-radius: 20px; background: linear-gradient(135deg,#6c5ce7,#c084fc); display: flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 16px; }
+    h1 { font-size: 1.4rem; margin-bottom: 6px; text-align: center; }
+    .sub { color: var(--muted); text-align: center; margin-bottom: 28px; font-size: .9rem; }
+    .btn { display: block; width: 100%; max-width: 340px; padding: 14px 18px; border-radius: 12px; border: none; font-size: 1rem; font-weight: 600; cursor: pointer; margin-bottom: 12px; text-align: center; text-decoration: none; color: #fff; }
+    .btn-p { background: linear-gradient(135deg,#6c5ce7,#7c3aed); }
+    .btn-s { background: var(--card); border: 1px solid var(--border); color: var(--text); }
+    .checks { width: 100%; max-width: 340px; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-top: 8px; margin-bottom: 16px; }
+    .row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: .88rem; }
+    .row:last-child { border-bottom: none; }
+    .badge { font-size: .72rem; padding: 2px 8px; border-radius: 20px; }
+    .ok { background: rgba(34,197,94,.15); color: var(--ok); }
+    .bad { background: rgba(239,68,68,.15); color: var(--bad); }
+    .warn { background: rgba(245,158,11,.15); color: var(--warn); }
+    .help { max-width: 340px; font-size: .82rem; color: var(--muted); line-height: 1.5; }
+    .help code { background: var(--card); padding: 1px 6px; border-radius: 4px; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="logo">✦</div>
+  <h1>AI Creator Studio</h1>
+  <p class="sub">สร้างคอนเทนต์สินค้าด้วย AI · มือถือ & คอม</p>
+
+  <a class="btn btn-p" id="btn-open" href="index.html">เปิดใช้งาน</a>
+  <button class="btn btn-s" id="btn-check" type="button">ตรวจสอบระบบ</button>
+  <button class="btn btn-s" id="btn-help" type="button">วิธีติดตั้งบน Android</button>
+
+  <div class="checks hidden" id="checks">
+    <div class="row"><span>JavaScript</span><span class="badge ok" id="c-js">OK</span></div>
+    <div class="row"><span>LocalStorage</span><span class="badge" id="c-store">—</span></div>
+    <div class="row"><span>Network</span><span class="badge" id="c-net">—</span></div>
+    <div class="row"><span>Backend API</span><span class="badge" id="c-api">—</span></div>
+    <div class="row"><span>AI Text Provider</span><span class="badge" id="c-ai">—</span></div>
+    <div class="row"><span>PWA / Standalone</span><span class="badge" id="c-pwa">—</span></div>
+  </div>
+
+  <div class="help hidden" id="help">
+    <p><strong>ไม่มีคอมพิวเตอร์ — ใช้ Termux บน Android</strong></p>
+    <p style="margin-top:8px">1. ติดตั้ง Termux จาก F-Droid<br>
+    2. <code>pkg install nodejs-lts</code><br>
+    3. เปิดโฟลเดอร์โปรเจกต์ แล้วรัน<br>
+    <code>node backend/server-lite.js</code><br>
+    4. เปิด Chrome ที่ <code>http://localhost:3847</code><br>
+    5. เมนู ⋮ → ติดตั้งแอป / Add to Home screen</p>
+    <p style="margin-top:10px">รายละเอียดเต็มดูไฟล์ <code>MOBILE-SETUP.md</code></p>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    function badge(el, ok, text) {
+      el.textContent = text;
+      el.className = 'badge ' + (ok === true ? 'ok' : ok === false ? 'bad' : 'warn');
+    }
+    $('btn-help').onclick = () => $('help').classList.toggle('hidden');
+    $('btn-check').onclick = async () => {
+      $('checks').classList.remove('hidden');
+      // Storage
+      try {
+        localStorage.setItem('_t', '1');
+        localStorage.removeItem('_t');
+        badge($('c-store'), true, 'OK');
+      } catch {
+        badge($('c-store'), false, 'FAIL');
+      }
+      // Network
+      badge($('c-net'), navigator.onLine, navigator.onLine ? 'Online' : 'Offline');
+      // PWA
+      const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+      badge($('c-pwa'), standalone ? true : 'warn', standalone ? 'Standalone' : 'Browser');
+      // Backend
+      try {
+        const r = await fetch('/api/health');
+        const j = await r.json();
+        badge($('c-api'), j.success, j.status || 'OK');
+      } catch {
+        try {
+          const r = await fetch('http://localhost:3847/api/health');
+          const j = await r.json();
+          badge($('c-api'), j.success, 'localhost OK');
+          $('btn-open').href = 'http://localhost:3847/';
+        } catch {
+          badge($('c-api'), false, 'ไม่พบเซิร์ฟเวอร์');
+        }
+      }
+      // AI
+      try {
+        const base = $('btn-open').href.includes('localhost') ? 'http://localhost:3847' : '';
+        const r = await fetch(base + '/api/providers/status');
+        const j = await r.json();
+        const text = j.providers?.text;
+        badge($('c-ai'), text?.status === 'CONNECTED', text?.status || 'UNKNOWN');
+      } catch {
+        badge($('c-ai'), false, 'ตรวจไม่ได้');
+      }
+    };
+  </script>
+</body>
+</html>
